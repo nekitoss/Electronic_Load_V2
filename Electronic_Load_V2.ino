@@ -1,7 +1,7 @@
 /////////////////////////////Library for i2c LCD//////////////////////////////////
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>      //Download it here: https://www.electronoobs.com/eng_arduino_liq_crystal.php
-LiquidCrystal_I2C lcd(0x3f,16,2); //slave address sometimes can be 0x3f or 0x27. Try both!
+LiquidCrystal_I2C lcd(0x27,16,2); //slave address sometimes can be 0x3f or 0x27. Try both!
 uint8_t arrow[8] = {0x0, 0x4 ,0x6, 0x3f, 0x6, 0x4, 0x0};
 uint8_t ohm[8] = {0xE ,0x11, 0x11, 0x11, 0xA, 0xA, 0x1B};
 uint8_t up[8] = {0x0 ,0x0, 0x4, 0xE , 0x1F, 0x4, 0x1C, 0x0};
@@ -34,7 +34,7 @@ int Buzzer = 3;     //Buzzer connected on pin D3
 
 
 
-int Delay = 300;                    //This is the LCD refresh rate. Each 300ms.
+unsigned int Delay = 300;                    //This is the LCD refresh rate. Each 300ms.
 unsigned long previousMillis = 0;   //Variables used for LCD refresh loop
 unsigned long currentMillis = 0;    //Variables used for LCD refresh loop
 int Rotary_counter = 0;             //Variable used to store the encoder position
@@ -611,7 +611,7 @@ void loop() {
       
     }
     
-    float voltage_on_load, sensosed_voltage, voltage_read, power_read;  
+    float voltage_on_load, voltage_read, power_read;//sensosed_voltage,  
     voltage_on_load = ads.readADC_Differential_0_1();      //Read DIFFERENTIAL voltage between ADC0 and ADC1. (the load is 1ohm, so this is equal to the current)
     voltage_on_load = (voltage_on_load * multiplier)*1000;
 
@@ -769,7 +769,7 @@ void loop() {
       Rotary_counter_prev = Rotary_counter;
     }
     
-    float voltage_on_load, sensosed_voltage, voltage_read, power_read;
+    float voltage_on_load, voltage_read, power_read;// sensosed_voltage,
       
     voltage_on_load = ads.readADC_Differential_0_1();      //Read DIFFERENTIAL voltage between ADC0 and ADC1
     voltage_on_load = (voltage_on_load * multiplier)*1000;
@@ -928,7 +928,7 @@ void loop() {
       Rotary_counter_prev = Rotary_counter;
     }
     
-    float voltage_on_load, sensosed_voltage, voltage_read, power_read;
+    float voltage_on_load, voltage_read, power_read;//sensosed_voltage, 
       
     voltage_on_load = ads.readADC_Differential_0_1();      //Read DIFFERENTIAL voltage between ADC0 and ADC1
     voltage_on_load = (voltage_on_load * multiplier)*1000;
