@@ -1216,73 +1216,71 @@ if(Menu_level == 8)//setup Volts
     if (error > (mV_setpoint*0.8))
     {
       if(mV_setpoint > current_voltage){
-        dac_value = dac_value + 300;
+        dac_value = dac_value - 300;
       }
 
       if(mV_setpoint < current_voltage){
-        dac_value = dac_value - 300;
+        dac_value = dac_value + 300;
       }
     }
-
     else if (error > (mV_setpoint*0.6))
     {
       if(mV_setpoint > current_voltage){
-        dac_value = dac_value + 170;
+        dac_value = dac_value - 170;
       }
 
       if(mV_setpoint < current_voltage){
-        dac_value = dac_value - 170;
+        dac_value = dac_value + 170;
       }
     }
-
     else if (error > (mV_setpoint*0.4))
     {
       if(mV_setpoint > current_voltage){
-        dac_value = dac_value + 120;
+        dac_value = dac_value - 120;
       }
 
       if(mV_setpoint < current_voltage){
-        dac_value = dac_value - 120;
+        dac_value = dac_value + 120;
       }
     }
     else if (error > (mV_setpoint*0.3))
     {
       if(mV_setpoint > current_voltage){
-        dac_value = dac_value + 60;
+        dac_value = dac_value - 60;
       }
 
       if(mV_setpoint < current_voltage){
-        dac_value = dac_value - 60;
+        dac_value = dac_value + 60;
       }
     }
     else if (error > (mV_setpoint*0.2))
     {
       if(mV_setpoint > current_voltage){
-        dac_value = dac_value + 40;
+        dac_value = dac_value - 40;
       }
 
       if(mV_setpoint < current_voltage){
-        dac_value = dac_value - 40;
+        dac_value = dac_value + 40;
       }
     }
     else if (error > (mV_setpoint*0.1))
     {
       if(mV_setpoint > current_voltage){
-        dac_value = dac_value + 30;
+        dac_value = dac_value - 30;
       }
 
       if(mV_setpoint < current_voltage){
-        dac_value = dac_value - 30;
+        dac_value = dac_value + 30;
       }
     }
     else
     {
       if(mV_setpoint > current_voltage){
-        dac_value = dac_value + 1;
+        dac_value = dac_value - 1;
       }
 
       if(mV_setpoint < current_voltage){
-        dac_value = dac_value - 1;
+        dac_value = dac_value + 1;
       }
     }
     
@@ -1330,7 +1328,6 @@ if(Menu_level == 8)//setup Volts
       mV_1 = 0;
       mV_2 = 0;  
       mV_3 = 0; 
-      mV_4 = 0;     
     }      
   }
 
