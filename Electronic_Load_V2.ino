@@ -70,11 +70,16 @@ byte mW_1 = 0;
 byte mW_2 = 0;
 byte mW_3 = 0;
 byte mW_4 = 0;
+byte mV_0 = 0;
+byte mV_1 = 0;
+byte mV_2 = 0;
+byte mV_3 = 0;
 
 //Variables for ADC readings
 float ohm_setpoint = 0;
 float mA_setpoint = 0;
 float mW_setpoint = 0;
+float mV_setpoint = 0;
 int dac_value = 0;
 
 /////////////////////////////////////////////////////////////IMPORTANT//////////////////////////////////////////////////////////////////
@@ -167,20 +172,24 @@ void loop() {
   
   if(Menu_level == 1)
   {
-    if(!digitalRead(SW) && !SW_STATUS)    {
+    if(!digitalRead(SW) && !SW_STATUS)    {//button enter press
       
       Rotary_counter = 0;
       tone(Buzzer, 500, 20);
-      if(Menu_row == 1){
+      if(Menu_row == 1){//load
         Menu_level = 2;
         Menu_row = 1;
       }
-      else if(Menu_row == 2){
+      else if(Menu_row == 2){//current
         Menu_level = 3;
         Menu_row = 1;
       }
-      else if(Menu_row == 3){
+      else if(Menu_row == 3){//power
         Menu_level = 4;
+        Menu_row = 1;
+      }
+      else if(Menu_row == 4){ //volt
+        Menu_level = 8;
         Menu_row = 1;
       }
       
@@ -207,14 +216,18 @@ void loop() {
     {
       Menu_row = 3;
     }
+    else if (Rotary_counter > 12 && Rotary_counter <= 16)//krutim
+    {
+      Menu_row = 4;
+    }
 
     if(Rotary_counter < 0)
     {
       Rotary_counter = 0;
     }
-    if(Rotary_counter > 12)
+    if(Rotary_counter > 16)
     {
-      Rotary_counter = 12;
+      Rotary_counter = 16;
     }
     
     currentMillis = millis();
@@ -225,34 +238,45 @@ void loop() {
         lcd.clear();
         lcd.setCursor(0,0);
         lcd.write(0); 
-        lcd.print(" Cnt Load");
+        lcd.print(" Load");
         lcd.setCursor(0,1);
-        
-        lcd.print("  Cnt Current"); 
+        lcd.print("  Current"); 
       }
     
       else if(Menu_row == 2)
       {
         lcd.clear();
         lcd.setCursor(0,0);     
-        lcd.print("  Cnt Load");
+        lcd.print("  Load");
         lcd.setCursor(0,1);
         lcd.write(0);
-        lcd.print(" Cnt Current"); 
+        lcd.print(" Current"); 
       }
     
       else if(Menu_row == 3)
       {
         lcd.clear();
-        lcd.setCursor(0,0);  
-        lcd.write(0);   
-        lcd.print(" Cnt Power");    
+        lcd.setCursor(0,0);
+        lcd.write(0); 
+        lcd.print(" Power");
+        lcd.setCursor(0,1);
+        lcd.print("  Voltage");
+      }
+
+      else if(Menu_row == 4)
+      {
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.write(0); 
+        lcd.print("  Power");
+        lcd.setCursor(0,1);
+        lcd.print(" Voltage");
       }
     }
   }
 
 
-  if(Menu_level == 2)
+  if(Menu_level == 2)//setup Om
   {
     if(Rotary_counter < 0)
     {
@@ -385,7 +409,7 @@ void loop() {
 
 
 
-  if(Menu_level == 3)
+  if(Menu_level == 3)//setup Amps
   {
     if(Rotary_counter < 0)
     {
@@ -489,7 +513,7 @@ void loop() {
 
   
 
-  if(Menu_level == 4)
+  if(Menu_level == 4)//setup W power
   {
     if(Rotary_counter < 0)
     {
@@ -1067,8 +1091,248 @@ void loop() {
   }
 
 
+if(Menu_level == 8)//setup Volts
+  {
+    if(Rotary_counter < 0)
+    {
+      Rotary_counter = 0;
+    }
+    if(Rotary_counter > 9)
+    {
+      Rotary_counter = 9;
+    }
+    
+    if(!digitalRead(SW) && !SW_STATUS)
+    {
+      tone(Buzzer, 500, 20);
+      push_count_ON = push_count_ON + 1;
+      push_count_OFF = 0;
+      if(push_count_ON > 20)
+      {
+        Menu_row = Menu_row + 1;
+        if(Menu_row > 4)
+        {
+          Menu_level = 9;
+          pause = false;
+          mV_setpoint = mV_0*1000 + mV_1*100 + mV_2*10 + mV_3; 
+          
+        }
+        Rotary_counter = 0;
+        SW_STATUS = true;
+        space_string_mA = space_string_mA + "_";
+        push_count_ON = 0;
+      }      
+    }
+
+    if(digitalRead(SW) && SW_STATUS)
+    {      
+      push_count_ON = 0; 
+      push_count_OFF = push_count_OFF + 1; 
+      if(push_count_OFF > 20){
+        SW_STATUS = false;
+        push_count_OFF = 0;
+      }
+        
+    }
+    
+
+    if(Menu_row == 1)
+    {
+      mV_0 = Rotary_counter;      
+    }
+    if(Menu_row == 2)
+    {
+      mV_1 = Rotary_counter;      
+    }
+    if(Menu_row == 3)
+    {
+      mV_2 = Rotary_counter;
+    }
+    if(Menu_row == 4)
+    {
+      mV_3 = Rotary_counter;     
+    }
+    
+    
+    currentMillis = millis();
+    if(currentMillis - previousMillis >= Delay){
+      previousMillis += Delay;
+      lcd.clear();
+      lcd.setCursor(0,0);     
+      lcd.print("mV: ");
+      lcd.print(mV_0);
+      lcd.print(mV_1);
+      lcd.print(mV_2);
+      lcd.print(mV_3);     
+      lcd.setCursor(0,1);    
+      lcd.print(space_string_mA);
+      lcd.write(2);
+    }
+    if(!digitalRead(SW_blue)){
+      Menu_level = 1;
+      Menu_row = 1;
+      Rotary_counter = 0;
+      Rotary_counter_prev = 0;
+      dac.setVoltage(0, false);
+      previousMillis = millis();
+      SW_STATUS = true;
+      space_string_mA = "____";  
+      mV_setpoint = 0;   
+      mV_0 = 0;
+      mV_1 = 0;
+      mV_2 = 0;      
+    }     
+  }
 
 
+//Constant Volt Mode
+  if(Menu_level == 9)
+  {
+    if(Rotary_counter > Rotary_counter_prev)
+    {
+      mV_setpoint = mV_setpoint + 10;
+      Rotary_counter_prev = Rotary_counter;
+    }
+
+    if(Rotary_counter < Rotary_counter_prev)
+    {
+      mV_setpoint = mV_setpoint - 10;
+      Rotary_counter_prev = Rotary_counter;
+    }
+    
+    float voltage_on_load, voltage_read, power_read;//sensosed_voltage, 
+      
+    voltage_on_load = ads.readADC_Differential_0_1();      //Read DIFFERENTIAL voltage between ADC0 and ADC1
+    voltage_on_load = (voltage_on_load * multiplier)*1000;
+
+    voltage_read = ads.readADC_SingleEnded(2);//volts real
+    voltage_read = (voltage_read * multiplier_A2);
+    
+    //sensosed_voltage = ads.readADC_SingleEnded(3);
+    //sensosed_voltage = (sensosed_voltage * multiplier);
+    float current_voltage = voltage_read * 100;
+
+    float error = abs(mV_setpoint - current_voltage);    
+    if (error > (mV_setpoint*0.8))
+    {
+      if(mV_setpoint > current_voltage){
+        dac_value = dac_value + 300;
+      }
+
+      if(mV_setpoint < current_voltage){
+        dac_value = dac_value - 300;
+      }
+    }
+
+    else if (error > (mV_setpoint*0.6))
+    {
+      if(mV_setpoint > current_voltage){
+        dac_value = dac_value + 170;
+      }
+
+      if(mV_setpoint < current_voltage){
+        dac_value = dac_value - 170;
+      }
+    }
+
+    else if (error > (mV_setpoint*0.4))
+    {
+      if(mV_setpoint > current_voltage){
+        dac_value = dac_value + 120;
+      }
+
+      if(mV_setpoint < current_voltage){
+        dac_value = dac_value - 120;
+      }
+    }
+    else if (error > (mV_setpoint*0.3))
+    {
+      if(mV_setpoint > current_voltage){
+        dac_value = dac_value + 60;
+      }
+
+      if(mV_setpoint < current_voltage){
+        dac_value = dac_value - 60;
+      }
+    }
+    else if (error > (mV_setpoint*0.2))
+    {
+      if(mV_setpoint > current_voltage){
+        dac_value = dac_value + 40;
+      }
+
+      if(mV_setpoint < current_voltage){
+        dac_value = dac_value - 40;
+      }
+    }
+    else if (error > (mV_setpoint*0.1))
+    {
+      if(mV_setpoint > current_voltage){
+        dac_value = dac_value + 30;
+      }
+
+      if(mV_setpoint < current_voltage){
+        dac_value = dac_value - 30;
+      }
+    }
+    else
+    {
+      if(mV_setpoint > current_voltage){
+        dac_value = dac_value + 1;
+      }
+
+      if(mV_setpoint < current_voltage){
+        dac_value = dac_value - 1;
+      }
+    }
+    
+    
+    
+    if(dac_value > 4095)
+    {
+      dac_value = 4095;
+    }
+    
+  
+    
+    
+    if(!pause){
+      dac.setVoltage(dac_value, false);
+      pause_string = "";
+    }
+    else{
+      dac.setVoltage(0, false);
+      pause_string = " PAUSE";
+    }
+    
+
+    currentMillis = millis();
+    if(currentMillis - previousMillis >= Delay){
+      previousMillis += Delay;
+      lcd.clear();
+      lcd.setCursor(0,0);     
+      lcd.print(mV_setpoint,0); lcd.print("mV "); lcd.print(voltage_read); lcd.print("V");
+      lcd.setCursor(0,1);    
+      lcd.print(current_voltage,0);  lcd.print("mV"); lcd.print(" "); lcd.print(voltage_on_load,0);  lcd.print("mA"); 
+      lcd.print(pause_string);
+    }
+    if(!digitalRead(SW_blue)){
+      Menu_level = 1;
+      Menu_row = 1;
+      Rotary_counter = 0;
+      Rotary_counter_prev = 0;
+      dac.setVoltage(0, false);
+      previousMillis = millis();
+      SW_STATUS = true;
+      space_string_mA = "____";
+      mV_setpoint = 0;
+      mV_0 = 0;
+      mV_1 = 0;
+      mV_2 = 0;  
+      mV_3 = 0; 
+      mV_4 = 0;     
+    }      
+  }
 
 
 
