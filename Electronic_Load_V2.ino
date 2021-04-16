@@ -124,7 +124,7 @@ void setup() {
   delay(300);
   lcd.setCursor(0,1);
   lcd.print("ELECTRONIC  LOAD");  
-  delay(2000);
+  delay(1000);
   
   PCICR |= (1 << PCIE0);      //enable PCMSK0 scan                                                 
   //PCMSK0 |= (1 << PCINT0);  //Set pin D8 trigger an interrupt on state change. 
@@ -266,10 +266,10 @@ void loop() {
       else if(Menu_row == 4)
       {
         lcd.clear();
-        lcd.setCursor(0,0);
-        lcd.write(0); 
+        lcd.setCursor(0,0); 
         lcd.print("  Power");
         lcd.setCursor(0,1);
+        lcd.write(0);
         lcd.print(" Voltage");
       }
     }
