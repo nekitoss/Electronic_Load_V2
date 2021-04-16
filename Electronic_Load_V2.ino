@@ -89,7 +89,7 @@ int dac_value = 0;
   BUT!!! The resistor is not exactly 1ohm, so in my case I've adapted the multiplier to 0.0001827. You might need to adjust this
   variable to other values till you get good readings, so while measuring the value with an external multimeter at the same time,
   adjust this variable till you get good results. */
-const float multiplier = 0.0001827;     //Multiplier used for "current" read between ADC0 and ADC1 of the ADS1115    
+const float multiplier = 0.000185817;     //Multiplier used for "current" read between ADC0 and ADC1 of the ADS1115
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*The same goes here. But in this case, the voltage read is from a voltage divider. You see, the ADS1115 can only measure up to 5V. 
@@ -98,7 +98,7 @@ const float multiplier = 0.0001827;     //Multiplier used for "current" read bet
   Now these resistor values are not perfect neighter so we don't have exactly 10K and 100K, that's why my multiplier for voltage read
   is 0.0020645. Just do the same, measure the voltage on the LCD screen and also with an external multimiter and adjust this value till you get 
   good results. I've measure the resistors but that's not enough. We need precise values. */
-const float multiplier_A2 = 0.0020645;   //Multiplier for voltage read from the 10K/100K divider
+const float multiplier_A2 = 0.002052026;   //Multiplier for voltage read from the 10K/100K divider
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
