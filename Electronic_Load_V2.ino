@@ -739,6 +739,7 @@ void loop() {
     }
     else{
       dac.setVoltage(0, false);
+      dac_value = 0;
       pause_string = " PAUSE";
     }
     
@@ -897,6 +898,7 @@ void loop() {
     }
     else{
       dac.setVoltage(0, false);
+      dac_value = 0;
       pause_string = " PAUSE";
     }
    
@@ -1058,6 +1060,7 @@ void loop() {
     }
     else{
       dac.setVoltage(0, false);
+      dac_value = 0;
       pause_string = " PAUSE";
     }
     
@@ -1300,6 +1303,7 @@ if(Menu_level == 8)//setup Volts
     }
     else{
       dac.setVoltage(0, false);
+      dac_value = 0;
       pause_string = " PAUSE";
     }
     
