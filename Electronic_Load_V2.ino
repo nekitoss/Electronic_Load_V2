@@ -1358,13 +1358,13 @@ if (clk_State != Last_State){
   // If the outputB state is different to the outputA state, that means the encoder is rotating clockwise
   if (dt_State != clk_State){ 
     Rotary_counter ++;    
-    tone(Buzzer, 700, 5);
+    // tone(Buzzer, 700, 5);
     Last_State = clk_State; // Updates the previous state of the outputA with the current state
     sei(); //restart interrupts
   }
   else {
     Rotary_counter --;  
-    tone(Buzzer, 700, 5); 
+    // tone(Buzzer, 700, 5); 
     Last_State = clk_State; // Updates the previous state of the outputA with the current state    
     sei(); //restart interrupts
   } 
