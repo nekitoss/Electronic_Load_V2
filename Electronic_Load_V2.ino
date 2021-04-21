@@ -8,8 +8,8 @@ uint8_t up[8] = {0x0 ,0x0, 0x4, 0xE , 0x1F, 0x4, 0x1C, 0x0};
 
 
 /////////////////////////////Library for ADS1115 ADC//////////////////////////////////
-#include <Adafruit_ADS1015.h>       //Download here: https://www.electronoobs.com/eng_arduino_Adafruit_ADS1015.php
-Adafruit_ADS1115 ads(0x48);         //Define i2c address 
+#include <Adafruit_ADS1X15.h>       //Download here: https://www.electronoobs.com/eng_arduino_Adafruit_ADS1015.php
+Adafruit_ADS1115 ads;         //Define i2c address 
 #define ADS1115_CONVERSIONDELAY  (1)
 #define ADS1015_CONVERSIONDELAY  (1)
 
@@ -140,8 +140,8 @@ void setup() {
 
   
   ads.begin();      //Start i2c communication with the ADC
-  ads.startComparator_SingleEnded(2, ADS1015_REG_CONFIG_MODE_CONTIN);
-  ads.startComparator_SingleEnded(3, ADS1015_REG_CONFIG_MODE_CONTIN);
+  ads.startComparator_SingleEnded(2, ADS1X15_REG_CONFIG_MODE_CONTIN);
+  ads.startComparator_SingleEnded(3, ADS1X15_REG_CONFIG_MODE_CONTIN);
   delay(10);
 
   dac.begin(0x60);  //Start i2c communication with the DAC (slave address sometimes can be 0x60, 0x61 or 0x62)
