@@ -106,6 +106,9 @@ const float multiplier_A2 = 0.002052026;   //Multiplier for voltage read from th
 
 
 void setup() {
+  Wire.begin();
+  Wire.setClock(400000L);
+
   lcd.init();                 //Start i2c communication with the LCD
   lcd.backlight();            //Activate backlight
   
