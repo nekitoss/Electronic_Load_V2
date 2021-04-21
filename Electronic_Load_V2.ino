@@ -1203,7 +1203,7 @@ if(Menu_level == 8)//setup Volts
       Rotary_counter_prev = Rotary_counter;
     }
     
-    float voltage_on_load, voltage_read, power_read;//sensosed_voltage, 
+    float voltage_on_load, voltage_read;//, power_read;//sensosed_voltage, 
       
     voltage_on_load = ads.readADC_Differential_0_1();      //Read DIFFERENTIAL voltage between ADC0 and ADC1
     voltage_on_load = (voltage_on_load * multiplier)*1000;
@@ -1315,7 +1315,7 @@ if(Menu_level == 8)//setup Volts
       lcd.setCursor(0,0);     
       lcd.print(mV_setpoint,0); lcd.print("mV "); lcd.print(voltage_read); lcd.print("V");
       lcd.setCursor(0,1);    
-      lcd.print(current_voltage,0);  lcd.print("mV"); lcd.print(" "); lcd.print(voltage_on_load,0);  lcd.print("mA"); 
+      lcd.print(voltage_read*voltage_on_load,0);  lcd.print("mW"); lcd.print(" "); lcd.print(voltage_on_load,0);  lcd.print("mA"); 
       lcd.print(pause_string);
     }
     if(!digitalRead(SW_blue)){
