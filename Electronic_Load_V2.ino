@@ -24,10 +24,15 @@ Adafruit_MCP4725 dac;
 
 
 ///////////////////////////////////INPUTS/OUTPUTS/////////////////////////////////////
-int SW = 8;         //push button from encoder
-int SW_red = 11;    //(in my case) red push button for stop/resume
-int SW_blue = 12;   //(in my case) blue push button for menu
-int Buzzer = 3;     //Buzzer connected on pin D3
+#define ENCODER_BTN_PIN A3         //push button from encoder
+#define STOP_BTN_PIN 7    //(in my case) red push button for stop/resume
+#define MENU_BTN_PIN 6   //(in my case) blue push button for menu
+#define BUZZER_PIN 9     //BUZZER_PIN connected on pin D3
+#define FAN_CONTROL_PIN 5
+#define FAN_SPEED_PIN A0
+#define TEMPERATURE_1_PIN A1
+#define TEMPERATURE_2_PIN A2
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -119,11 +124,11 @@ void setup() {
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("  ELECTRONOOBS  "); 
-  tone(Buzzer, 500, 100);
+  tone(BUZZER_PIN, 500, 100);
   delay(100);
-  tone(Buzzer, 700, 100);
+  tone(BUZZER_PIN, 700, 100);
   delay(100);
-  tone(Buzzer, 1200, 100);
+  tone(BUZZER_PIN, 1200, 100);
   delay(300);
   lcd.setCursor(0,1);
   lcd.print("ELECTRONIC  LOAD");  
@@ -131,14 +136,19 @@ void setup() {
   
   PCICR |= (1 << PCIE0);      //enable PCMSK0 scan                                                 
   //PCMSK0 |= (1 << PCINT0);  //Set pin D8 trigger an interrupt on state change. 
-  PCMSK0 |= (1 << PCINT1);    //Pin 9 (DT) interrupt. Set pin D9 to trigger an interrupt on state change.
-  PCMSK0 |= (1 << PCINT2);    //Pin 10 (CLK) interrupt. Set pin D10 to trigger an interrupt on state change.
+  PCMSK0 |= (1 << PCINT18);    //Pin 2 (DT) interrupt. Set pin D9 to trigger an interrupt on state change.
+  PCMSK0 |= (1 << PCINT19);    //Pin 3 (CLK) interrupt. Set pin D10 to trigger an interrupt on state change.
   DDRB &= B11111001;          //Pins 8, 9, 10 as input  
-  pinMode(Buzzer,OUTPUT);     //Buzzer pin set as OUTPUT
-  digitalWrite(Buzzer, LOW);  //Buzzer turned OFF
-  pinMode(SW,INPUT_PULLUP);       //Encoder button set as input with pullup
-  pinMode(SW_blue,INPUT_PULLUP);  //Menu button set as input with pullup
-  pinMode(SW_red,INPUT_PULLUP);   //Stop/resume button set as input with pullup
+  pinMode(BUZZER_PIN,OUTPUT);     //BUZZER_PIN pin set as OUTPUT
+  digitalWrite(BUZZER_PIN, LOW);  //BUZZER_PIN turned OFF
+  pinMode(ENCODER_BTN_PIN,INPUT);       //Encoder button set as input with pullup
+  pinMode(MENU_BTN_PIN, INPUT);  //Menu button set as input with pullup
+  pinMode(STOP_BTN_PIN, INPUT);   //Stop/resume button set as input with pullup
+  pinMode(FAN_CONTROL_PIN, OUTPUT);
+  digitalWrite(FAN_CONTROL_PIN, HIGH);
+  pinMode(FAN_SPEED_PIN, INPUT);
+  pinMode(TEMPERATURE_1_PIN, INPUT);
+  pinMode(TEMPERATURE_2_PIN, INPUT);
   delay(10);
 
   
@@ -157,16 +167,16 @@ void setup() {
 }
 
 void loop() {
-  if(!digitalRead(SW_red) && !SW_red_status){
+  if(!digitalRead(STOP_BTN_PIN) && !SW_red_status){
     push_count_OFF+=1;
     if(push_count_OFF > 10){  
-      tone(Buzzer, 1000, 300);          
+      tone(BUZZER_PIN, 1000, 300);          
       pause = !pause;
       SW_red_status = true;
       push_count_OFF=0;
     }   
   }
-  if(digitalRead(SW_red) && SW_red_status){
+  if(digitalRead(STOP_BTN_PIN) && SW_red_status){
     SW_red_status = false;
   }
 
@@ -175,10 +185,10 @@ void loop() {
   
   if(Menu_level == 1)
   {
-    if(!digitalRead(SW) && !SW_STATUS)    {//button enter press
+    if(!digitalRead(ENCODER_BTN_PIN) && !SW_STATUS)    {//button enter press
       
       Rotary_counter = 0;
-      tone(Buzzer, 500, 20);
+      tone(BUZZER_PIN, 500, 20);
       if(Menu_row == 1){//load
         Menu_level = 2;
         Menu_row = 1;
@@ -199,7 +209,7 @@ void loop() {
       SW_STATUS = true;
     }
 
-    if(digitalRead(SW) && SW_STATUS)
+    if(digitalRead(ENCODER_BTN_PIN) && SW_STATUS)
     {      
       SW_STATUS = false;
     }
@@ -289,9 +299,9 @@ void loop() {
     {
       Rotary_counter = 9;
     }
-    if(!digitalRead(SW) && !SW_STATUS)
+    if(!digitalRead(ENCODER_BTN_PIN) && !SW_STATUS)
     {
-      tone(Buzzer, 500, 20);
+      tone(BUZZER_PIN, 500, 20);
       push_count_ON = push_count_ON + 1;
       push_count_OFF = 0;
       if(push_count_ON > 20)
@@ -311,7 +321,7 @@ void loop() {
       }      
     }
 
-    if(digitalRead(SW) && SW_STATUS)
+    if(digitalRead(ENCODER_BTN_PIN) && SW_STATUS)
     {      
       push_count_ON = 0; 
       push_count_OFF = push_count_OFF + 1; 
@@ -370,7 +380,7 @@ void loop() {
       lcd.write(2);
     }
 
-    if(!digitalRead(SW_blue)){
+    if(!digitalRead(MENU_BTN_PIN)){
       Menu_level = 1;
       Menu_row = 1;
       Rotary_counter = 0;
@@ -387,7 +397,7 @@ void loop() {
       Ohms_5 = 0;
       Ohms_6 = 0;
     }
-    if(!digitalRead(SW_blue)){
+    if(!digitalRead(MENU_BTN_PIN)){
       Menu_level = 1;
       Menu_row = 1;
       Rotary_counter = 0;
@@ -423,9 +433,9 @@ void loop() {
       Rotary_counter = 9;
     }
     
-    if(!digitalRead(SW) && !SW_STATUS)
+    if(!digitalRead(ENCODER_BTN_PIN) && !SW_STATUS)
     {
-      tone(Buzzer, 500, 20);
+      tone(BUZZER_PIN, 500, 20);
       push_count_ON = push_count_ON + 1;
       push_count_OFF = 0;
       if(push_count_ON > 20)
@@ -445,7 +455,7 @@ void loop() {
       }      
     }
 
-    if(digitalRead(SW) && SW_STATUS)
+    if(digitalRead(ENCODER_BTN_PIN) && SW_STATUS)
     {      
       push_count_ON = 0; 
       push_count_OFF = push_count_OFF + 1; 
@@ -489,7 +499,7 @@ void loop() {
       lcd.print(space_string_mA);
       lcd.write(2);
     }
-    if(!digitalRead(SW_blue)){
+    if(!digitalRead(MENU_BTN_PIN)){
       Menu_level = 1;
       Menu_row = 1;
       Rotary_counter = 0;
@@ -527,9 +537,9 @@ void loop() {
       Rotary_counter = 9;
     }
     
-    if(!digitalRead(SW) && !SW_STATUS)
+    if(!digitalRead(ENCODER_BTN_PIN) && !SW_STATUS)
     {
-      tone(Buzzer, 500, 20);
+      tone(BUZZER_PIN, 500, 20);
       push_count_ON = push_count_ON + 1;
       push_count_OFF = 0;
       if(push_count_ON > 20)
@@ -549,7 +559,7 @@ void loop() {
       }      
     }
 
-    if(digitalRead(SW) && SW_STATUS)
+    if(digitalRead(ENCODER_BTN_PIN) && SW_STATUS)
     {      
       push_count_ON = 0; 
       push_count_OFF = push_count_OFF + 1; 
@@ -599,7 +609,7 @@ void loop() {
       lcd.print(space_string_mA);
       lcd.write(2);
     }
-    if(!digitalRead(SW_blue)){
+    if(!digitalRead(MENU_BTN_PIN)){
       Menu_level = 1;
       Menu_row = 1;
       Rotary_counter = 0;
@@ -756,7 +766,7 @@ void loop() {
       lcd.print(voltage_on_load,0);  lcd.print("mA"); lcd.print(" "); lcd.print(power_read,0);  lcd.print("mW"); 
       lcd.print(pause_string);
     }
-    if(!digitalRead(SW_blue)){
+    if(!digitalRead(MENU_BTN_PIN)){
       Menu_level = 1;
       Menu_row = 1;
       Rotary_counter = 0;
@@ -917,7 +927,7 @@ void loop() {
       lcd.print(voltage_on_load,0);  lcd.print("mA"); lcd.print(" "); lcd.print(power_read,0);  lcd.print("mW"); 
       lcd.print(pause_string);
     }
-    if(!digitalRead(SW_blue)){
+    if(!digitalRead(MENU_BTN_PIN)){
       Menu_level = 1;
       Menu_row = 1;
       Rotary_counter = 0;
@@ -1078,7 +1088,7 @@ void loop() {
       lcd.print(power_read,0);  lcd.print("mW"); lcd.print(" "); lcd.print(voltage_on_load,0);  lcd.print("mA"); 
       lcd.print(pause_string);
     }
-    if(!digitalRead(SW_blue)){
+    if(!digitalRead(MENU_BTN_PIN)){
       Menu_level = 1;
       Menu_row = 1;
       Rotary_counter = 0;
@@ -1108,9 +1118,9 @@ if(Menu_level == 8)//setup Volts
       Rotary_counter = 9;
     }
     
-    if(!digitalRead(SW) && !SW_STATUS)
+    if(!digitalRead(ENCODER_BTN_PIN) && !SW_STATUS)
     {
-      tone(Buzzer, 500, 20);
+      tone(BUZZER_PIN, 500, 20);
       push_count_ON = push_count_ON + 1;
       push_count_OFF = 0;
       if(push_count_ON > 20)
@@ -1130,7 +1140,7 @@ if(Menu_level == 8)//setup Volts
       }      
     }
 
-    if(digitalRead(SW) && SW_STATUS)
+    if(digitalRead(ENCODER_BTN_PIN) && SW_STATUS)
     {      
       push_count_ON = 0; 
       push_count_OFF = push_count_OFF + 1; 
@@ -1174,7 +1184,7 @@ if(Menu_level == 8)//setup Volts
       lcd.print(space_string_mA);
       lcd.write(2);
     }
-    if(!digitalRead(SW_blue)){
+    if(!digitalRead(MENU_BTN_PIN)){
       Menu_level = 1;
       Menu_row = 1;
       Rotary_counter = 0;
@@ -1321,7 +1331,7 @@ if(Menu_level == 8)//setup Volts
       lcd.print(voltage_read*voltage_on_load,0);  lcd.print("mW"); lcd.print(" "); lcd.print(voltage_on_load,0);  lcd.print("mA"); 
       lcd.print(pause_string);
     }
-    if(!digitalRead(SW_blue)){
+    if(!digitalRead(MENU_BTN_PIN)){
       Menu_level = 1;
       Menu_row = 1;
       Rotary_counter = 0;
@@ -1361,13 +1371,13 @@ if (clk_State != Last_State){
   // If the outputB state is different to the outputA state, that means the encoder is rotating clockwise
   if (dt_State != clk_State){ 
     Rotary_counter ++;    
-    // tone(Buzzer, 700, 5);
+    // tone(BUZZER_PIN, 700, 5);
     Last_State = clk_State; // Updates the previous state of the outputA with the current state
     sei(); //restart interrupts
   }
   else {
     Rotary_counter --;  
-    // tone(Buzzer, 700, 5); 
+    // tone(BUZZER_PIN, 700, 5); 
     Last_State = clk_State; // Updates the previous state of the outputA with the current state    
     sei(); //restart interrupts
   } 
