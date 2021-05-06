@@ -136,10 +136,10 @@ void setup() {
   lcd.print("ELECTRONIC  LOAD");  
   delay(1000);
   
-  PCICR |= (1 << PCIE0);      //enable PCMSK0 scan                                                 
+  PCICR |= (1 << PCIE2);      //enable PCMSK0 scan
   //PCMSK0 |= (1 << PCINT0);  //Set pin D8 trigger an interrupt on state change. 
-  PCMSK0 |= (1 << PCINT18);    //Pin 2 (DT) interrupt. Set pin D9 to trigger an interrupt on state change.
-  PCMSK0 |= (1 << PCINT19);    //Pin 3 (CLK) interrupt. Set pin D10 to trigger an interrupt on state change.
+  PCMSK2 |= (1 << PCINT18);    //Pin 2 (DT) interrupt. Set pin D9 to trigger an interrupt on state change.
+  PCMSK2 |= (1 << PCINT19);    //Pin 3 (CLK) interrupt. Set pin D10 to trigger an interrupt on state change.
   pinMode(ENCODER_DT_PIN, INPUT);
   pinMode(ENCODER_CLK_PIN, INPUT);
   pinMode(BUZZER_PIN,OUTPUT);     //BUZZER_PIN pin set as OUTPUT
