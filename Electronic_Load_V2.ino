@@ -24,6 +24,8 @@ Adafruit_MCP4725 dac;
 
 
 ///////////////////////////////////INPUTS/OUTPUTS/////////////////////////////////////
+#define ENCODER_DT_PIN 2
+#define ENCODER_CLK_PIN 3
 #define ENCODER_BTN_PIN A3         //push button from encoder
 #define STOP_BTN_PIN 7    //(in my case) red push button for stop/resume
 #define MENU_BTN_PIN 6   //(in my case) blue push button for menu
@@ -138,7 +140,8 @@ void setup() {
   //PCMSK0 |= (1 << PCINT0);  //Set pin D8 trigger an interrupt on state change. 
   PCMSK0 |= (1 << PCINT18);    //Pin 2 (DT) interrupt. Set pin D9 to trigger an interrupt on state change.
   PCMSK0 |= (1 << PCINT19);    //Pin 3 (CLK) interrupt. Set pin D10 to trigger an interrupt on state change.
-  DDRB &= B11111001;          //Pins 8, 9, 10 as input  
+  pinMode(ENCODER_DT_PIN, INPUT);
+  pinMode(ENCODER_CLK_PIN, INPUT);
   pinMode(BUZZER_PIN,OUTPUT);     //BUZZER_PIN pin set as OUTPUT
   digitalWrite(BUZZER_PIN, LOW);  //BUZZER_PIN turned OFF
   pinMode(ENCODER_BTN_PIN,INPUT);       //Encoder button set as input with pullup
@@ -1363,10 +1366,10 @@ if(Menu_level == 8)//setup Volts
 
 
 
-ISR(PCINT0_vect){  
+ISR(PCINT2_vect){  
 cli(); //stop interrupts happening before we read pin values
-clk_State =   (PINB & B00000100); //pin 10 state? 
-dt_State  =   (PINB & B00000010); 
+dt_State  =   (PIND & B00000100); //PD2=DT state
+clk_State =   (PIND & B00001000); //PD3=CLK state 
 if (clk_State != Last_State){
   // If the outputB state is different to the outputA state, that means the encoder is rotating clockwise
   if (dt_State != clk_State){ 
