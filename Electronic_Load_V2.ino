@@ -96,7 +96,7 @@ int dac_value = 0;
   BUT!!! The resistor is not exactly 1ohm, so in my case I've adapted the multiplier to 0.0001827. You might need to adjust this
   variable to other values till you get good readings, so while measuring the value with an external multimeter at the same time,
   adjust this variable till you get good results. */
-const float multiplier = 0.000185817;     //Multiplier used for "current" read between ADC0 and ADC1 of the ADS1115
+const float multiplier = 0.000185525;     //Multiplier used for "current" read between ADC0 and ADC1 of the ADS1115
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*The same goes here. But in this case, the voltage read is from a voltage divider. You see, the ADS1115 can only measure up to 5V. 
@@ -105,7 +105,7 @@ const float multiplier = 0.000185817;     //Multiplier used for "current" read b
   Now these resistor values are not perfect neighter so we don't have exactly 10K and 100K, that's why my multiplier for voltage read
   is 0.0020645. Just do the same, measure the voltage on the LCD screen and also with an external multimiter and adjust this value till you get 
   good results. I've measure the resistors but that's not enough. We need precise values. */
-const float multiplier_A2 = 0.002052026;   //Multiplier for voltage read from the 10K/100K divider
+const float multiplier_A2 = 0.002053538;   //Multiplier for voltage read from the 10K/100K divider
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -116,26 +116,11 @@ void setup() {
   Wire.begin();
   Wire.setClock(400000L);
 
-  lcd.init();                 //Start i2c communication with the LCD
-  lcd.backlight();            //Activate backlight
-  
-  lcd.createChar(0, arrow);   //create the arrow character
-  lcd.createChar(1, ohm);     //create the ohm character
-  lcd.createChar(2, up);      //create the up arrow character
-  
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("  ELECTRONOOBS  "); 
-  tone(BUZZER_PIN, 500, 100);
-  delay(100);
-  tone(BUZZER_PIN, 700, 100);
-  delay(100);
-  tone(BUZZER_PIN, 1200, 100);
-  delay(300);
-  lcd.setCursor(0,1);
-  lcd.print("ELECTRONIC  LOAD");  
-  delay(1000);
-  
+  dac.begin(0x60);  //Start i2c communication with the DAC (slave address sometimes can be 0x60, 0x61 or 0x62)
+  delay(10);
+  dac.setVoltage(0, false); //Set DAC voltage output ot 0V (MOSFET turned off)
+  delay(10);
+
   PCICR |= (1 << PCIE2);      //enable PCMSK0 scan
   //PCMSK0 |= (1 << PCINT0);  //Set pin D8 trigger an interrupt on state change. 
   PCMSK2 |= (1 << PCINT18);    //Pin 2 (DT) interrupt. Set pin D9 to trigger an interrupt on state change.
@@ -154,16 +139,33 @@ void setup() {
   pinMode(TEMPERATURE_2_PIN, INPUT);
   delay(10);
 
-  
+
   ads.begin();      //Start i2c communication with the ADC
   ads.startComparator_SingleEnded(2, ADS1X15_REG_CONFIG_MODE_CONTIN);
   ads.startComparator_SingleEnded(3, ADS1X15_REG_CONFIG_MODE_CONTIN);
   delay(10);
 
-  dac.begin(0x60);  //Start i2c communication with the DAC (slave address sometimes can be 0x60, 0x61 or 0x62)
-  delay(10);
-  dac.setVoltage(0, false); //Set DAC voltage output ot 0V (MOSFET turned off)
-  delay(10);
+  lcd.init();                 //Start i2c communication with the LCD
+  lcd.backlight();            //Activate backlight
+
+  lcd.createChar(0, arrow);   //create the arrow character
+  lcd.createChar(1, ohm);     //create the ohm character
+  lcd.createChar(2, up);      //create the up arrow character
+
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("  ELECTRONOOBS  ");
+  tone(BUZZER_PIN, 500, 100);
+  delay(100);
+  tone(BUZZER_PIN, 700, 100);
+  delay(100);
+  tone(BUZZER_PIN, 1200, 100);
+  delay(300);
+  lcd.setCursor(0,1);
+  lcd.print("ELECTRONIC  LOAD");
+  delay(1000);
+
+  analogWrite(FAN_CONTROL_PIN, 1);
    
   previousMillis = millis();
 
