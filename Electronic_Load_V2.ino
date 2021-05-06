@@ -652,7 +652,7 @@ void loop() {
     }
     
     float voltage_on_load, voltage_read, power_read;//sensosed_voltage,  
-    voltage_on_load = ads.readADC_Differential_0_1();      //Read DIFFERENTIAL voltage between ADC0 and ADC1. (the load is 1ohm, so this is equal to the current)
+    voltage_on_load = ads.readADC_Differential_0_1() * -1;      //Read DIFFERENTIAL voltage between ADC0 and ADC1. (the load is 1ohm, so this is equal to the current)
     voltage_on_load = (voltage_on_load * multiplier)*1000;
 
     voltage_read = ads.readADC_SingleEnded(2);
@@ -812,7 +812,7 @@ void loop() {
     
     float voltage_on_load, voltage_read, power_read;// sensosed_voltage,
       
-    voltage_on_load = ads.readADC_Differential_0_1();      //Read DIFFERENTIAL voltage between ADC0 and ADC1
+    voltage_on_load = ads.readADC_Differential_0_1() * -1;      //Read DIFFERENTIAL voltage between ADC0 and ADC1
     voltage_on_load = (voltage_on_load * multiplier)*1000;
 
     voltage_read = ads.readADC_SingleEnded(2);
@@ -972,7 +972,7 @@ void loop() {
     
     float voltage_on_load, voltage_read, power_read;//sensosed_voltage, 
       
-    voltage_on_load = ads.readADC_Differential_0_1();      //Read DIFFERENTIAL voltage between ADC0 and ADC1
+    voltage_on_load = ads.readADC_Differential_0_1() * -1;      //Read DIFFERENTIAL voltage between ADC0 and ADC1
     voltage_on_load = (voltage_on_load * multiplier)*1000;
 
     voltage_read = ads.readADC_SingleEnded(2);
@@ -1221,7 +1221,7 @@ if(Menu_level == 8)//setup Volts
     
     float voltage_on_load, voltage_read;//, power_read;//sensosed_voltage, 
       
-    voltage_on_load = ads.readADC_Differential_0_1();      //Read DIFFERENTIAL voltage between ADC0 and ADC1
+    voltage_on_load = ads.readADC_Differential_0_1() * -1;      //Read DIFFERENTIAL voltage between ADC0 and ADC1
     voltage_on_load = (voltage_on_load * multiplier)*1000;
 
     voltage_read = ads.readADC_SingleEnded(2);//volts real
