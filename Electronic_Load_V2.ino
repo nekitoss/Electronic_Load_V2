@@ -89,6 +89,24 @@ float mW_setpoint = 0;
 float mV_setpoint = 0;
 int dac_value = 0;
 
+//temperature
+enum fan_state{
+  OFF,
+  ON_ADJUST,
+  ON_FULL,
+  ON_STARTUP,
+};
+fan_state fan_status = OFF;
+float temperature_radiator = 0;
+unsigned long last_temp_time = 0;
+#define TEMPERATURE_INTERVAL 5000
+#define TEMPERATURE_SET 40.0
+#define TEMPERATURE_OFF 30.0
+#define FAN_STARTUP_PWM 50
+#define FAN_STARTUP_TIME 1000
+unsigned long fan_check_interval = TEMPERATURE_INTERVAL;
+byte fan_pwm = 0;
+
 /////////////////////////////////////////////////////////////IMPORTANT//////////////////////////////////////////////////////////////////
 /*This part is important. You see, when you sue the ADS1115, to pass from bit values (0 to 65000), we use a multiplier
   By default that is "0.185mv" or "0.000185V". In the code, to measure current, we make a differential measurement of the voltage
@@ -119,6 +137,7 @@ void setup() {
   dac.begin(0x60);  //Start i2c communication with the DAC (slave address sometimes can be 0x60, 0x61 or 0x62)
   delay(10);
   dac.setVoltage(0, false); //Set DAC voltage output ot 0V (MOSFET turned off)
+  analogReference(INTERNAL);
   delay(10);
 
   PCICR |= (1 << PCIE2);      //enable PCMSK0 scan
@@ -133,7 +152,8 @@ void setup() {
   pinMode(MENU_BTN_PIN, INPUT);  //Menu button set as input with pullup
   pinMode(STOP_BTN_PIN, INPUT);   //Stop/resume button set as input with pullup
   pinMode(FAN_CONTROL_PIN, OUTPUT);
-  digitalWrite(FAN_CONTROL_PIN, HIGH);
+  // digitalWrite(FAN_CONTROL_PIN, HIGH);
+  digitalWrite(FAN_CONTROL_PIN, LOW);
   pinMode(FAN_SPEED_PIN, INPUT);
   pinMode(TEMPERATURE_1_PIN, INPUT);
   pinMode(TEMPERATURE_2_PIN, INPUT);
@@ -165,7 +185,7 @@ void setup() {
   lcd.print("ELECTRONIC  LOAD");
   delay(1000);
 
-  analogWrite(FAN_CONTROL_PIN, 1);
+  // analogWrite(FAN_CONTROL_PIN, 1);
    
   previousMillis = millis();
 
@@ -762,6 +782,7 @@ void loop() {
     }
     
     currentMillis = millis();
+    fan_control();
     if(currentMillis - previousMillis >= Delay){
       previousMillis += Delay;
       lcd.clear();
@@ -923,11 +944,12 @@ void loop() {
     
 
     currentMillis = millis();
+    fan_control();
     if(currentMillis - previousMillis >= Delay){
       previousMillis += Delay;
       lcd.clear();
       lcd.setCursor(0,0);     
-      lcd.print(mA_setpoint,0); lcd.print("mA "); lcd.print(voltage_read); lcd.print("V");
+      lcd.print(mA_setpoint,0); lcd.print("mA "); lcd.print(temperature_radiator); lcd.print("V");
       lcd.setCursor(0,1);    
       lcd.print(voltage_on_load,0);  lcd.print("mA"); lcd.print(" "); lcd.print(power_read,0);  lcd.print("mW"); 
       lcd.print(pause_string);
@@ -1084,6 +1106,7 @@ void loop() {
     
 
     currentMillis = millis();
+    fan_control();
     if(currentMillis - previousMillis >= Delay){
       previousMillis += Delay;
       lcd.clear();
@@ -1327,11 +1350,12 @@ if(Menu_level == 8)//setup Volts
     
 
     currentMillis = millis();
+    fan_control();
     if(currentMillis - previousMillis >= Delay){
       previousMillis += Delay;
       lcd.clear();
       lcd.setCursor(0,0);     
-      lcd.print(mV_setpoint,0); lcd.print("mV "); lcd.print(voltage_read); lcd.print("V");
+      lcd.print(mV_setpoint,0); lcd.print("mV "); lcd.print(temperature_radiator); lcd.print("V");
       lcd.setCursor(0,1);    
       lcd.print(voltage_read*voltage_on_load,0);  lcd.print("mW"); lcd.print(" "); lcd.print(voltage_on_load,0);  lcd.print("mA"); 
       lcd.print(pause_string);
@@ -1387,4 +1411,42 @@ if (clk_State != Last_State){
     sei(); //restart interrupts
   } 
  }  
+}
+
+
+void fan_control() {
+  unsigned long current_time = millis();
+  if (abs(current_time - last_temp_time) >= fan_check_interval){
+
+    temperature_radiator = analogRead(TEMPERATURE_2_PIN) / 9.31;
+
+    if (fan_status == ON_STARTUP){
+      fan_pwm = 1;
+      fan_status = ON_ADJUST;
+      fan_check_interval = TEMPERATURE_INTERVAL;
+    }
+
+    last_temp_time = current_time;
+    if (temperature_radiator > TEMPERATURE_SET){
+      if(fan_status == OFF){
+        analogWrite(FAN_CONTROL_PIN, FAN_STARTUP_PWM);
+        fan_check_interval = FAN_STARTUP_TIME;
+        fan_status = ON_STARTUP;
+      }
+      else {
+        if (fan_pwm < 244)
+          fan_pwm++;
+      }
+    } 
+    else if (fan_status != OFF && temperature_radiator < TEMPERATURE_OFF){
+      if (fan_pwm > 1)
+        fan_pwm--;
+      else{
+        fan_status = OFF;
+        digitalWrite(FAN_CONTROL_PIN, LOW);
+      }
+    }
+
+    if (fan_status == ON_ADJUST) analogWrite(FAN_CONTROL_PIN, fan_pwm);
+  }
 }
